@@ -1,0 +1,30 @@
+# Core Framework
+fastapi
+uvicorn[standard]
+python-dotenv
+
+# Database
+motor # Async MongoDB driver
+pymongo
+pydantic
+
+# LLM & AI
+openai
+langchain
+sentence-transformers
+
+# Utilities
+python-multipart
+aiofiles
+
+# Security
+python-jose[cryptography]
+passlib[bcrypt]
+
+# CORS
+fastapi-cors
+
+# Testing
+pytest
+pytest-asyncio
+httpx
