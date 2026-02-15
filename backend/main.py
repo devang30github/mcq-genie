@@ -68,7 +68,7 @@ async def health_check():
     return {
         "status": "healthy",
         "timestamp": "2026-02-14",
-        "database": "connected" if Database.db else "disconnected"
+        "database": "connected" if Database.db is not None else "disconnected"
     }
 
 

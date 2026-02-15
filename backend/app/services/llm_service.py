@@ -2,9 +2,10 @@
 LLM Service for OpenRouter API integration.
 Handles chat completion and structured MCQ generation.
 """
-from openai import AsyncOpenAI
+from openai import OpenAI
 from typing import List, Dict, Any, Optional
 import json
+import asyncio
 from app.config import get_settings
 from app.models import MCQuestion, MCQOption, DifficultyLevel
 
@@ -15,9 +16,9 @@ class LLMService:
     def __init__(self):
         """Initialize OpenAI client with OpenRouter configuration."""
         settings = get_settings()
-        self.client = AsyncOpenAI(
-            api_key=settings.openrouter_api_key,
-            base_url=settings.openrouter_base_url
+        self.client = OpenAI(
+            api_key=settings.openrouter_api_key
+            #base_url=settings.openrouter_base_url
         )
         self.default_model = settings.default_model
     
@@ -41,16 +42,48 @@ class LLMService:
             Assistant's response content
         """
         try:
-            response = await self.client.chat.completions.create(
+            print(f"🔄 Using model: {model or self.default_model}")
+            
+            # Run synchronous OpenAI call in thread pool
+            response = await asyncio.to_thread(
+                self.client.chat.completions.create,
                 model=model or self.default_model,
                 messages=messages,
                 temperature=temperature,
                 max_tokens=max_tokens
             )
+            
+            print(f"✅ Response received successfully")
             return response.choices[0].message.content
+            
         except Exception as e:
-            print(f"❌ LLM Error: {str(e)}")
-            raise Exception(f"Failed to get LLM response: {str(e)}")
+            error_msg = str(e)
+            print(f"❌ LLM Error: {error_msg}")
+            
+            # Provide helpful error messages
+            if "404" in error_msg:
+                raise Exception(
+                    "❌ Model not available.\n"
+                    "Solutions:\n"
+                    "1. Check your DEFAULT_MODEL in .env file\n"
+                    "2. Visit https://openrouter.ai/settings/privacy to configure data policy\n"
+                    f"Original error: {error_msg}"
+                )
+            elif "401" in error_msg or "authentication" in error_msg.lower():
+                raise Exception(
+                    "❌ Invalid API key.\n"
+                    "Please check your OPENROUTER_API_KEY in .env file"
+                )
+            elif "429" in error_msg or "rate" in error_msg.lower():
+                raise Exception(
+                    "❌ Rate limit exceeded.\n"
+                    "Solutions:\n"
+                    "1. Wait a few minutes and try again\n"
+                    "2. Add your own API key at https://openrouter.ai/settings/integrations\n"
+                    "3. Use a paid model by adding credits to your OpenRouter account"
+                )
+            else:
+                raise Exception(f"Failed to get LLM response: {error_msg}")
     
     async def generate_mcqs(
         self,
