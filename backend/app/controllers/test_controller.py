@@ -158,7 +158,7 @@ class TestController:
         """
         result = await self.db_service.get_test_result(test_id)
         return result
-    
+    '''
     def _prepare_public_questions(self, questions: List[MCQuestion]) -> List[MCQuestion]:
         """
         Prepare questions for public viewing (hide correct answers).
@@ -180,6 +180,30 @@ class TestController:
                 explanation=None,    # Don't expose explanation yet
                 difficulty=q.difficulty
             )
+            public_questions.append(public_q)
+        
+        return public_questions
+    '''
+    
+    def _prepare_public_questions(self, questions: List[MCQuestion]) -> List[MCQuestion]:
+        """
+        Prepare questions for public viewing (hide correct answers).
+        
+        Args:
+            questions: List of MCQuestion objects
+        
+        Returns:
+            List of questions without correct answers exposed
+        """
+        public_questions = []
+        for q in questions:
+            # Create a dict and exclude sensitive fields
+            q_dict = q.model_dump()
+            q_dict['correct_answer'] = "A"  # Placeholder (not the real answer)
+            q_dict['explanation'] = None     # Don't expose explanation yet
+            
+            # Create new MCQuestion from modified dict
+            public_q = MCQuestion(**q_dict)
             public_questions.append(public_q)
         
         return public_questions

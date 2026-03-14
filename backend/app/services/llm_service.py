@@ -17,8 +17,8 @@ class LLMService:
         """Initialize OpenAI client with OpenRouter configuration."""
         settings = get_settings()
         self.client = OpenAI(
-            api_key=settings.openrouter_api_key
-            #base_url=settings.openrouter_base_url
+            api_key=settings.openrouter_api_key,
+            base_url=settings.openrouter_base_url
         )
         self.default_model = settings.default_model
     

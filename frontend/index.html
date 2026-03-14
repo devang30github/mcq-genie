@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCQ Genie - AI-Powered Learning Assistant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Landing Page -->
+    <div id="landing-page" class="page active">
+        <div class="landing-container">
+            <div class="landing-header">
+                <div class="genie-icon">🧞‍♂️</div>
+                <h1 class="app-title">MCQ Genie</h1>
+                <p class="app-tagline">Your AI-Powered Learning Companion</p>
+            </div>
+            
+            <div class="landing-features">
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>Chat & Learn</h3>
+                    <p>Discuss any topic with AI and get instant explanations</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📝</div>
+                    <h3>Generate Tests</h3>
+                    <p>Create custom MCQ tests on any subject</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Track Progress</h3>
+                    <p>Get detailed feedback and improve your knowledge</p>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary btn-large" onclick="startApp()">
+                Get Started →
+            </button>
+        </div>
+    </div>
+
+    <!-- Chat Page -->
+    <div id="chat-page" class="page">
+        <div class="app-container">
+            <!-- Header -->
+            <header class="app-header">
+                <div class="header-left">
+                    <span class="genie-icon-small">🧞‍♂️</span>
+                    <h2>MCQ Genie</h2>
+                </div>
+                <button class="btn btn-outline" onclick="newChat()">New Chat</button>
+            </header>
+
+            <!-- Chat Container -->
+            <div class="chat-container">
+                <div id="chat-messages" class="chat-messages">
+                    <!-- Welcome Message -->
+                    <div class="message assistant-message">
+                        <div class="message-avatar">🤖</div>
+                        <div class="message-content">
+                            <p>Hello! I'm MCQ Genie, your AI learning assistant. 👋</p>
+                            <p>Ask me anything or request a quiz on any topic!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Suggestions -->
+                <div id="suggestions" class="suggestions">
+                    <button class="suggestion-chip" onclick="sendSuggestion('Explain photosynthesis')">
+                        🌱 Explain photosynthesis
+                    </button>
+                    <button class="suggestion-chip" onclick="sendSuggestion('Quiz me on Python programming')">
+                        🐍 Quiz me on Python
+                    </button>
+                    <button class="suggestion-chip" onclick="sendSuggestion('Teach me about World War 2')">
+                        📚 Teach me about WW2
+                    </button>
+                </div>
+
+                <!-- Input Area -->
+                <div class="input-container">
+                    <textarea 
+                        id="user-input" 
+                        class="chat-input" 
+                        placeholder="Type your message or ask for a quiz..."
+                        rows="1"
+                        onkeydown="handleKeyPress(event)"
+                    ></textarea>
+                    <button class="btn btn-primary btn-send" onclick="sendMessage()">
+                        <span>Send</span>
+                        <span class="send-icon">→</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Generation Modal -->
+    <div id="test-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Generate Test</h2>
+                <button class="modal-close" onclick="closeTestModal()">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="test-topic">Topic</label>
+                    <input 
+                        type="text" 
+                        id="test-topic" 
+                        class="form-input" 
+                        placeholder="e.g., Python Programming, Biology"
+                        value=""
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="num-questions">Number of Questions</label>
+                    <input 
+                        type="number" 
+                        id="num-questions" 
+                        class="form-input" 
+                        min="5" 
+                        max="50" 
+                        value="10"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label>Difficulty Level</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="difficulty" value="easy">
+                            <span>Easy</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="difficulty" value="medium" checked>
+                            <span>Medium</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="difficulty" value="hard">
+                            <span>Hard</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeTestModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="generateTest()">
+                    <span id="generate-btn-text">Generate Test</span>
+                    <span id="generate-btn-loader" class="loader" style="display: none;"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exam Page -->
+    <div id="exam-page" class="page">
+        <div class="exam-container">
+            <!-- Exam Header -->
+            <div class="exam-header">
+                <div class="exam-info">
+                    <h2 id="exam-topic">Test Topic</h2>
+                    <p id="exam-progress">Question 1 of 10</p>
+                </div>
+                <div class="exam-timer">
+                    <span class="timer-icon">⏱️</span>
+                    <span id="timer">30:00</span>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="question-card">
+                <div class="question-number">Question <span id="current-question-num">1</span></div>
+                <div class="question-text" id="question-text">
+                    Loading question...
+                </div>
+
+                <div class="options-container" id="options-container">
+                    <!-- Options will be dynamically added -->
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="exam-navigation">
+                <button class="btn btn-outline" id="prev-btn" onclick="previousQuestion()" disabled>
+                    ← Previous
+                </button>
+                <button class="btn btn-primary" id="next-btn" onclick="nextQuestion()">
+                    Next →
+                </button>
+                <button class="btn btn-success" id="submit-btn" onclick="submitTest()" style="display: none;">
+                    Submit Test
+                </button>
+            </div>
+
+            <!-- Question Navigator -->
+            <div class="question-navigator">
+                <p class="navigator-title">All Questions:</p>
+                <div id="question-nav-buttons" class="nav-buttons">
+                    <!-- Question navigation buttons will be added here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Page -->
+    <div id="results-page" class="page">
+        <div class="results-container">
+            <div class="results-header">
+                <div class="score-circle">
+                    <div class="score-value" id="score-percentage">0%</div>
+                    <div class="score-label">Score</div>
+                </div>
+                <h2 id="results-topic">Test Results</h2>
+                <div class="results-stats">
+                    <div class="stat-item">
+                        <span class="stat-value correct" id="correct-count">0</span>
+                        <span class="stat-label">Correct</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value wrong" id="wrong-count">0</span>
+                        <span class="stat-label">Wrong</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-value total" id="total-count">0</span>
+                        <span class="stat-label">Total</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Results -->
+            <div class="detailed-results" id="detailed-results">
+                <!-- Results will be added here -->
+            </div>
+
+            <div class="results-actions">
+                <button class="btn btn-outline" onclick="backToChat()">Back to Chat</button>
+                <button class="btn btn-primary" onclick="retakeTest()">Take Another Test</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="api.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
